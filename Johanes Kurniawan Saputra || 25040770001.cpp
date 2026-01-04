@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <limits>
+#include <algorithm>
+
 using namespace std;
 
 class Parkir {
@@ -14,58 +17,44 @@ private:
 
 public:
     void kendaraanMasuk() {
-        cout << "Plat Nomor      : ";
-        cin >> platNomor;
-        cout << "Jenis Kendaraan : ";
-        cin >> jenis;
+        cout << "Plat Nomor        : ";
+        getline(cin, platNomor);
 
-        waktuMasuk = time(0);
-        cout << "Kendaraan MASUK...\n";
+        cout << "Jenis Kendaraan   : ";
+        getline(cin, jenis);
+
+        waktuMasuk = time(NULL);
+        cout << "\nKendaraan MASUK...\n";
         cout << "Waktu masuk tercatat.\n";
     }
 
-void kendaraanKeluar() {
-    waktuKeluar = time(0);
-
-    int detik = difftime(waktuKeluar, waktuMasuk);
-
-    if (detik <= 600) {
-        durasi = 0;
-    } else {
-        detik -= 600;
-        durasi = detik / 3600;
-
-        if (detik % 3600 != 0)
-            durasi++;
+    void kendaraanKeluar() {
+        waktuKeluar = time(NULL);
+        durasi = static_cast<int>(difftime(waktuKeluar, waktuMasuk));
+        hitungBiaya();
     }
 
-    hitungBiaya();
-}
+    void hitungBiaya() {
+        int biayaAwal = 2000;
+        int biayaPerDetik = 1000;
+        int biayaMaks = 10000;
 
-void hitungBiaya() {
-    int biayaAwal = 2000;
-    int biayaPerJam = 1000;
-    int biayaMaks = 10000;
+        if (durasi <= 10) {
+            biaya = 0;
+        } else {
+            int detikBayar = durasi - 10;
+            biaya = biayaAwal + max(0, detikBayar - 1) * biayaPerDetik;
+        }
 
-    if (durasi == 0) {
-        biaya = 0; // GRATIS
-    }
-    else if (durasi == 1) {
-        biaya = biayaAwal;
-    }
-    else {
-        biaya = biayaAwal + (durasi - 1) * biayaPerJam;
+        if (biaya > biayaMaks)
+            biaya = biayaMaks;
     }
 
-    if (biaya > biayaMaks)
-        biaya = biayaMaks;
-}
-
-void tampilData() {
+    void tampilData() {
         cout << "\n===== STRUK PARKIR =====\n";
         cout << "Plat Nomor    : " << platNomor << endl;
         cout << "Jenis         : " << jenis << endl;
-        cout << "Durasi Parkir : " << durasi << " Jam\n";
+        cout << "Durasi Parkir : " << durasi << " detik\n";
         cout << "Total Biaya   : Rp" << biaya << endl;
     }
 };
@@ -78,13 +67,13 @@ int main() {
     p.kendaraanMasuk();
 
     cout << "\nTekan ENTER untuk kendaraan keluar...";
-    cin.ignore();
     cin.get();
 
     p.kendaraanKeluar();
     p.tampilData();
 
+    cout << "\nTekan ENTER untuk keluar...";
+    cin.get();
+
     return 0;
 }
-
-
